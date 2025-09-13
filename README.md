@@ -1,38 +1,17 @@
-# sv
+# ShoeDiffer
+Your one stop shop for more information about running shoes than you needed.
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+ShoeDiffer provides side-by-side running shoe-comparisons. Clear specs, fit visuals, and rotation ideas.
 
-## Creating a project
+This app is currently in the MVP building phase! It does not have all of the features yet.
 
-If you're seeing this, you've probably already done this step. Congrats!
+# Planned Features
+- Compare 2+ shoes side-by-side (weight, stack, heel-to-toe drop, foam, pricing, etc.)
+- Shoe overlays (think bikeinsights for bikes or eloshapes for mice) to compare fit
+- Shoe rotation builder
 
-```sh
-# create a new project in the current directory
-npx sv create
+# dev server
+`bun run dev`
 
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+# build
+`bun run build`
