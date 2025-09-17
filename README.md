@@ -10,6 +10,11 @@ This app is currently in the MVP building phase! It does not have all of the fea
 - Shoe overlays (think bikeinsights for bikes or eloshapes for mice) to compare fit
 - Shoe rotation builder
 
+# Tech stack
+- Bun
+- SvelteKit
+- Tailwind
+
 # dev server
 `bun run dev`
 
