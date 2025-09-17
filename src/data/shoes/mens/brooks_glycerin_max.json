@@ -5,5 +5,7 @@
     "price": 200,
     "weightOunces": 10.5,
     "offsetMilimeters": 6,
+    "heelStackMm": 50,
+    "forefootStackMm": 44,
     "url": "https://www.brooksrunning.com/en_us/mens/shoes/road-running-shoes/glycerin-max/110447.html"
 }

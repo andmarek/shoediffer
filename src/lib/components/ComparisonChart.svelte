@@ -47,6 +47,19 @@
                                     <div class="space-y-1">
                                         <p class="font-medium text-black text-sm">{shoe.name}</p>
                                         <p class="text-xs text-gray-500 font-mono">{shoe.brand}</p>
+                                        <p class="text-xs text-gray-500 font-mono">
+                                            ${shoe.price} | {shoe.weightOunces}oz
+                                        </p>
+                                        {#if shoe.url}
+                                            <a 
+                                                href={shoe.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                class="inline-flex items-center gap-1 text-xs font-mono text-gray-600 hover:text-black transition-colors"
+                                            >
+                                                view ↗
+                                            </a>
+                                        {/if}
                                     </div>
                                 </th>
                             {/each}
@@ -87,40 +100,6 @@
             </div>
         </div>
         
-        <!-- Links -->
-        <div class="mt-12 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-            {#each selectedShoeData as shoe, index}
-                <div class="bg-white border border-gray-200 p-4">
-                    <div class="mb-3">
-                        <h3 class="font-medium text-black text-sm">{shoe.name}</h3>
-                        <p class="text-gray-500 text-xs font-mono mt-1">{shoe.brand}</p>
-                    </div>
-                    
-                    <div class="space-y-2 mb-4">
-                        {#each fields.slice(0, 3) as field}
-                            {@const indicator = getBetterIndicator(shoe[field.key], field, selectedShoeData)}
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-500 text-xs font-mono">{field.label}</span>
-                                <span class="font-mono text-black text-xs
-                                    {indicator === 'best' ? 'text-green-600' : indicator === 'worst' ? 'text-red-600' : ''}">
-                                    {formatValue(shoe[field.key], field.type)}
-                                </span>
-                            </div>
-                        {/each}
-                    </div>
-                    
-                    {#if shoe.url}
-                        <a 
-                            href={shoe.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            class="inline-flex items-center w-full px-3 py-2 text-xs font-mono text-black border border-gray-300 hover:bg-gray-50 transition-colors"
-                        >
-                            view product →
-                        </a>
-                    {/if}
-                </div>
-            {/each}
-        </div>
+
     </div>
 {/if}

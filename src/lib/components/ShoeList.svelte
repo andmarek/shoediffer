@@ -11,15 +11,30 @@
         }
     }
     
+    function deselectAll() {
+        selectedShoes = [];
+    }
+    
     $: canCompare = selectedShoes.length >= 2;
+    $: hasSelections = selectedShoes.length > 0;
     
     export let onCompare = () => {};
 </script>
 
 <div class="space-y-8">
-    <div>
-        <h2 class="text-lg font-medium text-black mb-2">select shoes</h2>
-        <p class="text-gray-500 text-sm font-mono">choose 2-3 for comparison</p>
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-lg font-medium text-black mb-2">select shoes</h2>
+            <p class="text-gray-500 text-sm font-mono">choose 2-3 for comparison</p>
+        </div>
+        {#if hasSelections}
+            <button
+                on:click={deselectAll}
+                class="text-gray-500 hover:text-black text-sm font-mono transition-colors"
+            >
+                deselect all
+            </button>
+        {/if}
     </div>
     
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
