@@ -21,3 +21,6 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Adding the bun server's run log here
+run.log

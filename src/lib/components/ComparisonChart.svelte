@@ -12,13 +12,6 @@
         return value;
     }
     
-    function getBarWidth(value, field, allValues) {
-        const max = Math.max(...allValues.map(shoe => shoe[field.key]));
-        const min = Math.min(...allValues.map(shoe => shoe[field.key]));
-        const range = max - min || 1;
-        return ((value - min) / range) * 100;
-    }
-    
     function getBetterIndicator(value, field, allValues) {
         const max = Math.max(...allValues.map(shoe => shoe[field.key]));
         const min = Math.min(...allValues.map(shoe => shoe[field.key]));
@@ -32,84 +25,86 @@
 </script>
 
 {#if selectedShoeData.length > 0}
-    <div class="space-y-8">
-        <div class="text-center">
-            <h2 class="text-2xl font-bold text-gray-900">Shoe Comparison</h2>
-            <p class="text-gray-600 mt-2">Comparing {selectedShoeData.length} shoes side by side</p>
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="mb-12">
+            <h2 class="text-lg font-medium text-black mb-2">comparison</h2>
+            <p class="text-gray-500 text-sm font-mono">{selectedShoeData.length} shoes</p>
         </div>
         
-        <!-- Shoe Headers -->
-        <div class="grid gap-6" style="grid-template-columns: 200px repeat({selectedShoeData.length}, 1fr);">
-            <div></div>
-            {#each selectedShoeData as shoe}
-                <div class="text-center">
-                    <h3 class="font-bold text-lg text-gray-900">{shoe.name}</h3>
-                    <p class="text-sm text-gray-600">{shoe.brand}</p>
-                </div>
-            {/each}
-        </div>
-        
-        <!-- Comparison Rows -->
-        <div class="space-y-6">
-            {#each fields as field}
-                <div class="bg-gray-50 rounded-lg p-4">
-                    <h4 class="font-semibold text-gray-900 mb-4">{field.label}</h4>
+        <!-- Main Comparison Table -->
+        <div class="bg-white border border-gray-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <!-- Table Header -->
+                    <thead class="bg-gray-50 border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 py-3 text-left">
+                                <span class="text-xs font-mono text-gray-500">spec</span>
+                            </th>
+                            {#each selectedShoeData as shoe}
+                                <th class="px-4 py-3 text-center min-w-[160px]">
+                                    <div class="space-y-1">
+                                        <p class="font-medium text-black text-sm">{shoe.name}</p>
+                                        <p class="text-xs text-gray-500 font-mono">{shoe.brand}</p>
+                                    </div>
+                                </th>
+                            {/each}
+                        </tr>
+                    </thead>
                     
-                    <div class="grid gap-6" style="grid-template-columns: 200px repeat({selectedShoeData.length}, 1fr);">
-                        <div class="flex items-center">
-                            <span class="text-sm text-gray-600">Values</span>
-                        </div>
-                        
-                        {#each selectedShoeData as shoe, index}
+                    <!-- Table Body -->
+                    <tbody class="divide-y divide-gray-200">
+                        {#each fields as field, fieldIndex}
+                            <tr>
+                                <td class="px-4 py-3 font-mono text-black text-sm">
+                                    {field.label}
+                                </td>
+                                {#each selectedShoeData as shoe}
+                                    {@const indicator = getBetterIndicator(shoe[field.key], field, selectedShoeData)}
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="flex flex-col items-center space-y-1">
+                                            <span class="text-sm font-mono text-black
+                                                {indicator === 'best' ? 'text-green-600' : indicator === 'worst' ? 'text-red-600' : ''}">
+                                                {formatValue(shoe[field.key], field.type)}
+                                            </span>
+                                            {#if indicator === 'best'}
+                                                <span class="text-xs font-mono text-green-600">
+                                                    best
+                                                </span>
+                                            {:else if indicator === 'worst'}
+                                                <span class="text-xs font-mono text-red-600">
+                                                    worst
+                                                </span>
+                                            {/if}
+                                        </div>
+                                    </td>
+                                {/each}
+                            </tr>
+                        {/each}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Links -->
+        <div class="mt-12 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {#each selectedShoeData as shoe, index}
+                <div class="bg-white border border-gray-200 p-4">
+                    <div class="mb-3">
+                        <h3 class="font-medium text-black text-sm">{shoe.name}</h3>
+                        <p class="text-gray-500 text-xs font-mono mt-1">{shoe.brand}</p>
+                    </div>
+                    
+                    <div class="space-y-2 mb-4">
+                        {#each fields.slice(0, 3) as field}
                             {@const indicator = getBetterIndicator(shoe[field.key], field, selectedShoeData)}
-                            <div class="text-center">
-                                <div class="text-lg font-bold text-gray-900 mb-2
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-500 text-xs font-mono">{field.label}</span>
+                                <span class="font-mono text-black text-xs
                                     {indicator === 'best' ? 'text-green-600' : indicator === 'worst' ? 'text-red-600' : ''}">
                                     {formatValue(shoe[field.key], field.type)}
-                                    {#if indicator === 'best'}
-                                        <span class="text-xs ml-1">👑</span>
-                                    {/if}
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
-                    
-                    <!-- Visual Bar Chart -->
-                    <div class="grid gap-6 mt-4" style="grid-template-columns: 200px repeat({selectedShoeData.length}, 1fr);">
-                        <div class="flex items-center">
-                            <span class="text-sm text-gray-600">Visual</span>
-                        </div>
-                        
-                        {#each selectedShoeData as shoe}
-                            {@const width = getBarWidth(shoe[field.key], field, selectedShoeData)}
-                            {@const indicator = getBetterIndicator(shoe[field.key], field, selectedShoeData)}
-                            <div class="flex items-center">
-                                <div class="w-full bg-gray-200 rounded-full h-6 relative">
-                                    <div 
-                                        class="h-6 rounded-full transition-all duration-300
-                                            {indicator === 'best' ? 'bg-green-500' : indicator === 'worst' ? 'bg-red-500' : 'bg-blue-500'}"
-                                        style="width: {Math.max(width, 10)}%"
-                                    ></div>
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
-                </div>
-            {/each}
-        </div>
-        
-        <!-- Summary Cards -->
-        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {#each selectedShoeData as shoe, index}
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <h3 class="font-bold text-lg text-gray-900">{shoe.name}</h3>
-                    <p class="text-sm text-gray-600 mb-3">{shoe.brand} • {shoe.model}</p>
-                    
-                    <div class="space-y-2">
-                        {#each fields as field}
-                            <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">{field.label}:</span>
-                                <span class="font-medium">{formatValue(shoe[field.key], field.type)}</span>
+                                </span>
                             </div>
                         {/each}
                     </div>
@@ -119,9 +114,9 @@
                             href={shoe.url} 
                             target="_blank" 
                             rel="noopener noreferrer"
-                            class="mt-3 block text-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            class="inline-flex items-center w-full px-3 py-2 text-xs font-mono text-black border border-gray-300 hover:bg-gray-50 transition-colors"
                         >
-                            View Product →
+                            view product →
                         </a>
                     {/if}
                 </div>

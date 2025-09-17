@@ -16,41 +16,43 @@
     export let onCompare = () => {};
 </script>
 
-<div class="space-y-4">
-    <h2 class="text-2xl font-bold text-gray-900">Select Shoes to Compare</h2>
-    <p class="text-gray-600">Choose 2-3 shoes to see a side-by-side comparison</p>
+<div class="space-y-8">
+    <div>
+        <h2 class="text-lg font-medium text-black mb-2">select shoes</h2>
+        <p class="text-gray-500 text-sm font-mono">choose 2-3 for comparison</p>
+    </div>
     
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
         {#each shoes as shoe, index}
             <button
-                class="p-4 border rounded-lg text-left transition-colors hover:bg-gray-50 {selectedShoes.includes(index) ? 'border-blue-500 bg-blue-50' : 'border-gray-200'}"
+                class="p-4 border text-left transition-colors hover:bg-gray-50/50 {selectedShoes.includes(index) ? 'border-black bg-gray-50' : 'border-gray-200'}"
                 on:click={() => toggleShoe(index)}
                 disabled={!selectedShoes.includes(index) && selectedShoes.length >= 3}
             >
-                <div class="flex items-center justify-between">
-                    <h3 class="font-semibold text-gray-900">{shoe.name}</h3>
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-medium text-black text-sm">{shoe.name}</h3>
                     {#if selectedShoes.includes(index)}
-                        <div class="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-sm">
+                        <div class="w-4 h-4 bg-black text-white flex items-center justify-center text-xs">
                             ✓
                         </div>
                     {/if}
                 </div>
-                <p class="text-sm text-gray-600">{shoe.brand}</p>
-                <div class="mt-2 space-y-1">
-                    <p class="text-sm text-gray-800">${shoe.price}</p>
-                    <p class="text-sm text-gray-600">{shoe.weightOunces}oz • {shoe.offsetMilimeters}mm drop</p>
+                <p class="text-xs text-gray-500 font-mono mb-3">{shoe.brand}</p>
+                <div class="space-y-1">
+                    <p class="text-sm text-black font-mono">${shoe.price}</p>
+                    <p class="text-xs text-gray-500 font-mono">{shoe.weightOunces}oz • {shoe.offsetMilimeters}mm</p>
                 </div>
             </button>
         {/each}
     </div>
     
     {#if canCompare}
-        <div class="flex justify-center">
+        <div class="flex justify-start">
             <button
-                class="px-8 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                class="px-6 py-2 bg-black text-white text-sm font-mono hover:bg-gray-800 transition-colors"
                 on:click={onCompare}
             >
-                Compare {selectedShoes.length} Shoes
+                compare ({selectedShoes.length})
             </button>
         </div>
     {/if}

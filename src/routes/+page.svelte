@@ -20,21 +20,21 @@
 </svelte:head>
 
 <main class="min-h-screen bg-white">
-    <div class="max-w-7xl mx-auto px-4 py-8">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-gray-900 mb-2">Shoediffer</h1>
-            <p class="text-lg text-gray-600">Find your perfect running shoe through data-driven comparison</p>
+    <div class="max-w-6xl mx-auto px-6 py-12">
+        <header class="mb-16">
+            <h1 class="text-2xl font-medium text-black mb-3 tracking-tight">shoediffer</h1>
+            <p class="text-gray-500 text-sm font-mono">your one stop shop for more information about running shoes than you needed</p>
         </header>
         
         {#if !showComparison}
             <ShoeList bind:selectedShoes onCompare={handleCompare} />
         {:else}
-            <div class="space-y-6">
+            <div class="space-y-8">
                 <button 
                     on:click={goBack}
-                    class="flex items-center text-blue-600 hover:text-blue-800 font-medium"
+                    class="text-black hover:text-gray-600 text-sm font-mono transition-colors"
                 >
-                    ← Back to Selection
+                    ← back
                 </button>
                 <ComparisonChart {selectedShoes} />
             </div>
