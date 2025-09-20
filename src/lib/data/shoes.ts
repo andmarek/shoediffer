@@ -1,15 +1,63 @@
-import type { Shoe } from '../recommendation/types';
+import type { Shoe, ShoeRole, SupportLevel, Width, PriceTier } from '../recommendation/types';
 import { convertPaceRangeToSeconds } from '../recommendation/mappings';
 
 // Import sample data for now - later this could come from a database
-import sampleData from '../data/sample_shoe_data_enhanced.json';
+import sampleData from '../../data/sample_shoe_data_enhanced.json';
 
 // Transform and validate the shoe data
-export const shoes: Shoe[] = sampleData.map(rawShoe => ({
-  ...rawShoe,
-  // Ensure paceRangeSecPerKm is computed from the string format
-  paceRangeSecPerKm: convertPaceRangeToSeconds(rawShoe.paceRange),
-}));
+const VALID_ROLES: ShoeRole[] = ['daily', 'long-run', 'tempo', 'race', 'trail', 'recovery', 'stability'];
+
+export const shoes: Shoe[] = sampleData.map(rawShoe => {
+  // Validate required fields
+  if (!rawShoe.paceRange || !rawShoe.paceRange.minPacePerKm || !rawShoe.paceRange.maxPacePerKm) {
+    throw new Error(`Shoe "${rawShoe.name}" is missing required paceRange data`);
+  }
+  
+  return {
+    ...rawShoe,
+    shoeTypes: normalizeRoles(rawShoe.shoeTypes),
+    supportLevel: normalizeSupportLevel(rawShoe.supportLevel),
+    widthOptions: normalizeWidths(rawShoe.widthOptions),
+    priceTier: normalizePriceTier(rawShoe.priceTier),
+    // Ensure paceRangeSecPerKm is computed from the string format
+    paceRangeSecPerKm: convertPaceRangeToSeconds(rawShoe.paceRange),
+  } as Shoe;
+});
+
+function normalizeRoles(roles: string[]): ShoeRole[] {
+  if (!Array.isArray(roles)) return ['daily'];
+
+  const normalized = roles
+    .map(role => role.trim().toLowerCase())
+    .filter((role): role is ShoeRole => VALID_ROLES.includes(role as ShoeRole));
+
+  return normalized.length > 0 ? normalized : ['daily'];
+}
+
+function normalizeSupportLevel(level: string): SupportLevel {
+  const normalized = (level ?? '').toLowerCase();
+  if (normalized.includes('motion')) return 'motion-control';
+  if (normalized.includes('stability')) return 'stability';
+  return 'neutral';
+}
+
+function normalizeWidths(widths: string[]): Width[] {
+  if (!Array.isArray(widths)) return ['standard'];
+
+  const valid: Width[] = ['narrow', 'standard', 'wide'];
+  const normalized = widths
+    .map(width => width.trim().toLowerCase())
+    .filter((width): width is Width => valid.includes(width as Width));
+
+  return normalized.length > 0 ? normalized : ['standard'];
+}
+
+function normalizePriceTier(tier: string): PriceTier {
+  const normalized = (tier ?? '').toLowerCase();
+  if (normalized.includes('budget')) return 'budget';
+  if (normalized.includes('premium')) return 'premium';
+  return 'mid';
+}
 
 // Helper functions for working with shoe data
 export function getShoeById(id: string): Shoe | undefined {
@@ -62,6 +110,15 @@ export function validateShoeData(): { valid: boolean; errors: string[] } {
     valid: errors.length === 0,
     errors
   };
+}
+
+// Get comparable fields for charting
+export function getComparableFields() {
+  return [
+    { key: 'price', label: 'Price ($)', type: 'currency' },
+    { key: 'weightOunces', label: 'Weight (oz)', type: 'number' },
+    { key: 'offsetMilimeters', label: 'Drop (mm)', type: 'number' }
+  ];
 }
 
 // Stats about the shoe database

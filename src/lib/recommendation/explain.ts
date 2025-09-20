@@ -57,11 +57,32 @@ export function buildExplanation(user: UserVector, scoredShoe: ScoredShoe): stri
   } else if (sim.price >= 0.6) {
     reasons.push('offers good value for your budget');
   }
-  
+
+  // Role fit and coverage
+  if (sim.roleFit >= 0.75) {
+    const matchedRoles = shoe.shoeTypes.filter(type => user.rolesNeeded.includes(type as ShoeRole));
+    if (matchedRoles.length > 1) {
+      reasons.push(`covers your ${matchedRoles.join(' + ')} days`);
+    } else if (matchedRoles.length === 1) {
+      reasons.push(`nails your ${matchedRoles[0]} needs`);
+    } else {
+      reasons.push('fits smoothly into your planned rotation');
+    }
+  } else if (sim.roleFit >= 0.55) {
+    reasons.push('adds depth to your rotation coverage');
+  }
+
+  // Versatility alignment
+  if (user.preferVersatile && sim.versatility >= 0.7) {
+    reasons.push('can flex across multiple run types');
+  } else if (!user.preferVersatile && sim.versatility <= 0.6) {
+    reasons.push('stays focused on a specific purpose');
+  }
+
   // Role-specific reasons
   const roleReasons = getRoleSpecificReasons(shoe.shoeTypes, user.rolesNeeded);
   reasons.push(...roleReasons);
-  
+
   // Durability
   if (sim.durability >= 0.8) {
     reasons.push('should last well with your weekly mileage');

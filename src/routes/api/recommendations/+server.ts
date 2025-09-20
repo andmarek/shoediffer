@@ -82,7 +82,7 @@ export const POST: RequestHandler = async ({ request }) => {
     };
     
     // Add debug info in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       response.debug = {
         userVector: user,
         originalShoeCount: shoes.length,

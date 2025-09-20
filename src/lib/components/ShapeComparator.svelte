@@ -1,5 +1,5 @@
 <script>
-    import { shoes } from '../data/shoes.js';
+    import { shoes } from '../data/shoes';
     
     export let selectedShoes = [];
     export let isOpen = false;

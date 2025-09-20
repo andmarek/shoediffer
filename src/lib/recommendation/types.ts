@@ -86,6 +86,8 @@ export interface SimilarityBreakdown {
   width: number;
   price: number;
   durability: number;
+  roleFit: number;
+  versatility: number;
 }
 
 export interface ScoredShoe {

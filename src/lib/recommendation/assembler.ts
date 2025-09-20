@@ -1,149 +1,262 @@
 import type { UserVector, ScoredShoe, ShoeRole } from './types';
 
 export function assembleRotation(user: UserVector, scoredShoes: ScoredShoe[]): ScoredShoe[] {
-  const rolesRemaining = new Set(user.rolesNeeded);
+  const maxPairs = user.preferVersatile ? 3 : 5;
   const rotation: ScoredShoe[] = [];
-  const MAX_PAIRS = user.preferVersatile ? 3 : 5; // Fewer shoes if user prefers versatile options
-  
-  // Create a working pool, filtered and sorted
-  let pool = scoredShoes
-    .filter(scored => scored.score > 0) // Remove excluded shoes
-    .sort((a, b) => b.score - a.score); // Sort by score descending
-  
-  while (rolesRemaining.size > 0 && rotation.length < MAX_PAIRS && pool.length > 0) {
-    // Re-sort pool by coverage potential and score
-    pool = pool.sort((a, b) => {
-      const aCoverage = calculateCoverage(a.shoe, rolesRemaining);
-      const bCoverage = calculateCoverage(b.shoe, rolesRemaining);
-      
-      // Primary sort: coverage count (more roles covered = better)
-      if (aCoverage !== bCoverage) {
-        return bCoverage - aCoverage;
-      }
-      
-      // Secondary sort: score (higher score = better)
-      return b.score - a.score;
+  const rolesRemaining = new Set<ShoeRole>(user.rolesNeeded);
+  const candidatePool = buildCandidatePool(scoredShoes);
+  const takenNames = new Set<string>();
+
+  // Stage 1: lock in anchors for the highest priority needs
+  deriveEssentialRoles(user).forEach(role => {
+    if (rotation.length >= maxPairs || !rolesRemaining.has(role)) return;
+    const candidate = selectBestCandidate({
+      pool: candidatePool,
+      user,
+      rolesRemaining,
+      takenNames,
+      rotation,
+      focusRole: role,
     });
-    
-    // Pick the best shoe
-    const bestShoe = pool.shift();
-    if (!bestShoe) break;
-    
-    rotation.push(bestShoe);
-    
-    // Remove covered roles
-    bestShoe.shoe.shoeTypes.forEach(role => {
-      rolesRemaining.delete(role as ShoeRole);
+
+    if (candidate) {
+      commitCandidate(candidate, rotation, rolesRemaining, takenNames);
+    }
+  });
+
+  // Stage 2: cover remaining roles while respecting budget and versatility preferences
+  while (rotation.length < maxPairs && rolesRemaining.size > 0) {
+    const next = selectBestCandidate({
+      pool: candidatePool,
+      user,
+      rolesRemaining,
+      takenNames,
+      rotation,
     });
-    
-    // Apply budget penalty to remaining shoes if we're approaching budget limits
-    if (rotation.length >= 2) {
-      const avgPrice = rotation.reduce((sum, shoe) => sum + shoe.shoe.price, 0) / rotation.length;
-      pool = pool.map(scored => {
-        if (scored.shoe.price > avgPrice * 1.2) {
-          return {
-            ...scored,
-            score: scored.score * 0.8, // Penalty for expensive shoes
-          };
-        }
-        return scored;
-      });
+
+    if (!next) break;
+    commitCandidate(next, rotation, rolesRemaining, takenNames);
+  }
+
+  // Stage 3: if user prefers smaller versatile rotation but we still have room,
+  // add one high scoring generalist as an optional flex pick
+  if (rotation.length < maxPairs && rotation.length < 2) {
+    const versatilePick = selectHighScoringGeneralist(candidatePool, takenNames);
+    if (versatilePick) {
+      commitCandidate(versatilePick, rotation, rolesRemaining, takenNames);
     }
   }
-  
+
   return rotation;
 }
 
-function calculateCoverage(shoe: any, rolesRemaining: Set<ShoeRole>): number {
-  return shoe.shoeTypes.filter((role: ShoeRole) => rolesRemaining.has(role)).length;
+function buildCandidatePool(scoredShoes: ScoredShoe[]): ScoredShoe[] {
+  return scoredShoes
+    .filter(candidate => candidate.score > 0)
+    .slice()
+    .sort((a, b) => b.score - a.score);
 }
 
-// Helper function to identify what roles are covered by the rotation
+function deriveEssentialRoles(user: UserVector): ShoeRole[] {
+  const priorityOrder: ShoeRole[] = ['daily', 'stability', 'long-run', 'tempo', 'trail'];
+  return priorityOrder.filter(role => user.rolesNeeded.includes(role));
+}
+
+interface SelectionContext {
+  pool: ScoredShoe[];
+  user: UserVector;
+  rolesRemaining: Set<ShoeRole>;
+  takenNames: Set<string>;
+  rotation: ScoredShoe[];
+  focusRole?: ShoeRole;
+}
+
+function selectBestCandidate(context: SelectionContext): ScoredShoe | null {
+  const {
+    pool,
+    user,
+    rolesRemaining,
+    takenNames,
+    rotation,
+    focusRole,
+  } = context;
+
+  let best: ScoredShoe | null = null;
+  let bestScore = -Infinity;
+
+  for (const candidate of pool) {
+    if (takenNames.has(candidate.shoe.name)) continue;
+    if (focusRole && !candidate.shoe.shoeTypes.includes(focusRole)) continue;
+
+    const evaluation = evaluateCandidate(candidate, user, rolesRemaining, rotation, focusRole);
+
+    if (evaluation > bestScore) {
+      best = candidate;
+      bestScore = evaluation;
+    }
+  }
+
+  if (!best) return null;
+
+  removeFromPool(pool, best);
+  return best;
+}
+
+function evaluateCandidate(
+  candidate: ScoredShoe,
+  user: UserVector,
+  rolesRemaining: Set<ShoeRole>,
+  rotation: ScoredShoe[],
+  focusRole?: ShoeRole
+): number {
+  const { similarityBreakdown, shoe, score } = candidate;
+  const overlappingRoles = shoe.shoeTypes.filter(role => rolesRemaining.has(role));
+
+  const coverageBonus = overlappingRoles.length > 0 ? 1.2 * overlappingRoles.length : 0.3;
+  const roleFitBonus = similarityBreakdown.roleFit * 3;
+  const paceSupportBalance = (similarityBreakdown.pace + similarityBreakdown.supportLevel) * 1.25;
+  const versatilityBonus = similarityBreakdown.versatility * (user.preferVersatile ? 1.8 : 0.9);
+  const cushioningBonus = similarityBreakdown.cushioning * 0.8;
+  const focusBonus = focusRole && shoe.shoeTypes.includes(focusRole) ? 2 : 0;
+
+  const baseComposite = score + coverageBonus + roleFitBonus + paceSupportBalance + versatilityBonus + cushioningBonus + focusBonus;
+  const priceFactor = computePriceFactor(candidate, user, rotation);
+
+  return baseComposite * priceFactor;
+}
+
+function computePriceFactor(candidate: ScoredShoe, user: UserVector, rotation: ScoredShoe[]): number {
+  if (user.priceTier === 'premium') {
+    return 1;
+  }
+
+  const price = candidate.shoe.price;
+  const baseThreshold = user.priceTier === 'budget' ? 150 : 210;
+
+  if (rotation.length === 0) {
+    if (price > baseThreshold) {
+      return user.priceTier === 'budget' ? 0.8 : 0.9;
+    }
+    return 1;
+  }
+
+  const currentAverage = rotation.reduce((sum, item) => sum + item.shoe.price, 0) / rotation.length;
+  const toleranceMultiplier = user.priceTier === 'budget' ? 1.15 : 1.3;
+  const tolerance = currentAverage * toleranceMultiplier;
+
+  if (price > tolerance) {
+    return user.priceTier === 'budget' ? 0.75 : 0.85;
+  }
+
+  return 1.05; // small boost for staying on budget as rotation grows
+}
+
+function commitCandidate(
+  candidate: ScoredShoe,
+  rotation: ScoredShoe[],
+  rolesRemaining: Set<ShoeRole>,
+  takenNames: Set<string>
+) {
+  rotation.push(candidate);
+  takenNames.add(candidate.shoe.name);
+
+  candidate.shoe.shoeTypes.forEach(role => {
+    rolesRemaining.delete(role);
+  });
+}
+
+function selectHighScoringGeneralist(pool: ScoredShoe[], takenNames: Set<string>): ScoredShoe | null {
+  for (const candidate of pool) {
+    if (takenNames.has(candidate.shoe.name)) continue;
+    if (candidate.shoe.shoeTypes.length >= 2) {
+      removeFromPool(pool, candidate);
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function removeFromPool(pool: ScoredShoe[], candidate: ScoredShoe) {
+  const index = pool.findIndex(item => item.shoe.name === candidate.shoe.name);
+  if (index >= 0) {
+    pool.splice(index, 1);
+  }
+}
+
 export function getCoveredRoles(rotation: ScoredShoe[]): ShoeRole[] {
   const covered = new Set<ShoeRole>();
-  
+
   rotation.forEach(scored => {
     scored.shoe.shoeTypes.forEach(role => {
-      covered.add(role as ShoeRole);
+      covered.add(role);
     });
   });
-  
+
   return Array.from(covered);
 }
 
-// Helper function to find uncovered roles
 export function getUncoveredRoles(user: UserVector, rotation: ScoredShoe[]): ShoeRole[] {
   const covered = new Set(getCoveredRoles(rotation));
   return user.rolesNeeded.filter(role => !covered.has(role));
 }
 
-// Alternative assembly strategy for users who prefer specialized shoes
 export function assembleSpecializedRotation(user: UserVector, scoredShoes: ScoredShoe[]): ScoredShoe[] {
-  const rolesRemaining = new Set(user.rolesNeeded);
+  const maxPairs = 5;
+  const candidatePool = buildCandidatePool(scoredShoes);
   const rotation: ScoredShoe[] = [];
-  const MAX_PAIRS = 5;
-  
-  // For each role, find the best specialized shoe
+  const rolesRemaining = new Set<ShoeRole>(user.rolesNeeded);
+  const takenNames = new Set<string>();
+
   user.rolesNeeded.forEach(role => {
-    if (rotation.length >= MAX_PAIRS) return;
-    
-    const candidatesForRole = scoredShoes
-      .filter(scored => 
-        scored.score > 0 && 
-        scored.shoe.shoeTypes.includes(role) &&
-        !rotation.some(existing => existing.shoe.name === scored.shoe.name)
-      )
-      .sort((a, b) => {
-        // Prefer shoes that are more specialized for this role
-        const aSpecialization = a.shoe.shoeTypes.length;
-        const bSpecialization = b.shoe.shoeTypes.length;
-        
-        if (aSpecialization !== bSpecialization) {
-          return aSpecialization - bSpecialization; // Fewer roles = more specialized
-        }
-        
-        return b.score - a.score;
-      });
-    
-    if (candidatesForRole.length > 0) {
-      rotation.push(candidatesForRole[0]);
-      rolesRemaining.delete(role);
+    if (rotation.length >= maxPairs) return;
+
+    const bestForRole = selectBestCandidate({
+      pool: candidatePool,
+      user,
+      rolesRemaining,
+      takenNames,
+      rotation,
+      focusRole: role,
+    });
+
+    if (bestForRole) {
+      commitCandidate(bestForRole, rotation, rolesRemaining, takenNames);
     }
   });
-  
+
   return rotation;
 }
 
-// Quality check function
 export function validateRotation(user: UserVector, rotation: ScoredShoe[]): {
   isValid: boolean;
   issues: string[];
-  coverage: number; // percentage of roles covered
+  coverage: number;
 } {
   const issues: string[] = [];
   const covered = getCoveredRoles(rotation);
-  const coverage = (covered.length / user.rolesNeeded.length) * 100;
-  
+  const coverage = user.rolesNeeded.length
+    ? (covered.length / user.rolesNeeded.length) * 100
+    : 0;
+
   if (rotation.length === 0) {
     issues.push('No shoes selected');
   }
-  
+
   if (coverage < 80) {
     issues.push(`Low role coverage: ${coverage.toFixed(1)}%`);
   }
-  
+
   if (rotation.length > 5) {
     issues.push('Too many shoes in rotation');
   }
-  
-  // Check for budget issues
+
   const totalCost = rotation.reduce((sum, scored) => sum + scored.shoe.price, 0);
-  const avgCost = totalCost / rotation.length;
-  
-  if (user.priceTier === 'budget' && avgCost > 125) {
+  const avgCost = rotation.length ? totalCost / rotation.length : 0;
+
+  if (user.priceTier === 'budget' && avgCost > 140) {
     issues.push('Average shoe price exceeds budget preference');
   }
-  
+
   return {
     isValid: issues.length === 0,
     issues,

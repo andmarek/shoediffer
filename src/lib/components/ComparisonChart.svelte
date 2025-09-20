@@ -1,5 +1,5 @@
 <script>
-    import { shoes, getComparableFields } from '../data/shoes.js';
+    import { shoes, getComparableFields } from '../data/shoes';
     
     export let selectedShoes = [];
     
