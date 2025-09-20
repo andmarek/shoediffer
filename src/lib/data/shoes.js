@@ -1,25 +1,28 @@
-// Load shoe data from JSON files
-import brooksHyperion3 from '../../data/shoes/mens/brooks_hyperion_3.json';
-import brooksGhostMax3 from '../../data/shoes/mens/brooks_ghost_max_3.json';
-import brooksGhost17 from '../../data/shoes/mens/brooks_ghost_17.json';
-import brooksGlycerinMax from '../../data/shoes/mens/brooks_glycerin_max.json';
-import brooksAdrenalineGts24 from '../../data/shoes/mens/brooks_adrenaline_gts_24.json';
-import brooksGlycerin22 from '../../data/shoes/mens/brooks_glycerin_22.json';
-import hokaMach6 from '../../data/shoes/mens/hoka_mach_6.json';
-import sauconyEndorphinSpeed5 from '../../data/shoes/mens/saucony_endorphin_speed_5.json';
-import sauconyKinvara16 from '../../data/shoes/mens/saucony_kinvara_16.json';
+// Load shoe data from centralized JSON file
+import sampleData from '../../data/sample_shoe_data_enhanced.json';
 
-export const shoes = [
-    brooksHyperion3,
-    brooksGhostMax3,
-    brooksGhost17,
-    brooksGlycerinMax,
-    brooksAdrenalineGts24,
-    brooksGlycerin22,
-    hokaMach6,
-    sauconyEndorphinSpeed5,
-    sauconyKinvara16
-];
+// Helper function to convert pace strings to seconds
+function paceStringToSeconds(paceStr) {
+  if (!paceStr || paceStr.trim() === '') return 300; // 5:00 default
+  
+  const match = paceStr.match(/(\d+):(\d+)/);
+  if (match) {
+    const minutes = parseInt(match[1]);
+    const seconds = parseInt(match[2]);
+    return minutes * 60 + seconds;
+  }
+  
+  return 300; // fallback
+}
+
+// Transform the data to add paceRangeSecPerKm
+export const shoes = sampleData.map(shoe => ({
+  ...shoe,
+  paceRangeSecPerKm: {
+    min: paceStringToSeconds(shoe.paceRange.minPacePerKm),
+    max: paceStringToSeconds(shoe.paceRange.maxPacePerKm),
+  }
+}));
 
 export const getShoeById = (id) => shoes[id];
 

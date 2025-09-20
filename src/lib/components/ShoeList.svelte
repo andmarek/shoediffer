@@ -2,6 +2,7 @@
     import { shoes } from '../data/shoes.js';
     
     export let selectedShoes = [];
+    let searchQuery = '';
     
     function toggleShoe(index) {
         if (selectedShoes.includes(index)) {
@@ -15,6 +16,12 @@
         selectedShoes = [];
     }
     
+    // Filter shoes based on search query
+    $: filteredShoes = shoes.filter(shoe => 
+        shoe.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        shoe.brand.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    
     $: canCompare = selectedShoes.length >= 2;
     $: hasSelections = selectedShoes.length > 0;
     
@@ -22,31 +29,40 @@
 </script>
 
 <div class="space-y-8">
-    <div class="flex items-center justify-between">
+    <div class="flex items-center justify-between mb-4">
         <div>
             <h2 class="text-lg font-medium text-black mb-2">select shoes</h2>
             <p class="text-gray-500 text-sm font-mono">choose 2-3 for comparison</p>
         </div>
-        {#if hasSelections}
-            <button
-                on:click={deselectAll}
-                class="text-gray-500 hover:text-black text-sm font-mono transition-colors"
-            >
-                deselect all
-            </button>
-        {/if}
+        <div class="flex items-center gap-4">
+            <input 
+                type="text" 
+                placeholder="search shoes..."
+                bind:value={searchQuery}
+                class="px-3 py-2 border border-gray-200 rounded text-sm font-mono placeholder:text-gray-400 focus:border-black focus:outline-none transition-colors"
+            />
+            {#if hasSelections}
+                <button
+                    on:click={deselectAll}
+                    class="text-gray-500 hover:text-black text-sm font-mono transition-colors whitespace-nowrap"
+                >
+                    deselect all
+                </button>
+            {/if}
+        </div>
     </div>
     
     <div class="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-        {#each shoes as shoe, index}
+        {#each filteredShoes as shoe, filteredIndex}
+            {@const originalIndex = shoes.indexOf(shoe)}
             <button
-                class="p-4 border text-left transition-colors hover:bg-gray-50/50 {selectedShoes.includes(index) ? 'border-black bg-gray-50' : 'border-gray-200'}"
-                on:click={() => toggleShoe(index)}
-                disabled={!selectedShoes.includes(index) && selectedShoes.length >= 3}
+                class="p-4 border text-left transition-colors hover:bg-gray-50/50 {selectedShoes.includes(originalIndex) ? 'border-black bg-gray-50' : 'border-gray-200'}"
+                on:click={() => toggleShoe(originalIndex)}
+                disabled={!selectedShoes.includes(originalIndex) && selectedShoes.length >= 3}
             >
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="font-medium text-black text-sm">{shoe.name}</h3>
-                    {#if selectedShoes.includes(index)}
+                    {#if selectedShoes.includes(originalIndex)}
                         <div class="w-4 h-4 bg-black text-white flex items-center justify-center text-xs">
                             ✓
                         </div>

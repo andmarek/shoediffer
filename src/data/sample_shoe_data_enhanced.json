@@ -1,0 +1,202 @@
+[
+  {
+    "name": "Brooks Ghost 17",
+    "brand": "Brooks",
+    "model": "Ghost 17",
+    "price": 150,
+    "weightOunces": 10.1,
+    "offsetMilimeters": 10,
+    "heelStackMm": 32,
+    "forefootStackMm": 22,
+    "url": "https://www.brooksrunning.com/en_us/mens/shoes/road-running-shoes/ghost-17/110442.html",
+    
+    "shoeTypes": ["daily", "tempo"],
+    "supportLevel": "neutral",
+    "cushioningScale": 7,
+    "weightClass": "mid",
+    "paceRange": {
+      "minPacePerKm": "4:00",
+      "maxPacePerKm": "6:00"
+    },
+    "terrain": ["road"],
+    "durabilityKm": 500,
+    "priceTier": "mid",
+    "widthOptions": ["standard", "wide"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "Saucony Endorphin Speed 5",
+    "brand": "Saucony", 
+    "model": "Endorphin Speed 5",
+    "price": 175,
+    "weightOunces": 8.3,
+    "offsetMilimeters": 8,
+    "heelStackMm": 39,
+    "forefootStackMm": 31,
+    "url": "https://www.saucony.com/en/endorphin-speed-5/60307M.html",
+    
+    "shoeTypes": ["tempo", "race"],
+    "supportLevel": "neutral",
+    "cushioningScale": 6,
+    "weightClass": "light",
+    "paceRange": {
+      "minPacePerKm": "3:20",
+      "maxPacePerKm": "4:30"
+    },
+    "terrain": ["road", "track"],
+    "durabilityKm": 400,
+    "priceTier": "mid",
+    "widthOptions": ["standard"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "Brooks Adrenaline GTS 24",
+    "brand": "Brooks",
+    "model": "Adrenaline GTS 24", 
+    "price": 150,
+    "weightOunces": 10.8,
+    "offsetMilimeters": 12,
+    "heelStackMm": 34,
+    "forefootStackMm": 22,
+    "url": "https://www.brooksrunning.com/en_us/mens/shoes/road-running-shoes/adrenaline-gts-24/110408.html",
+    
+    "shoeTypes": ["daily", "stability"],
+    "supportLevel": "stability",
+    "cushioningScale": 8,
+    "weightClass": "mid",
+    "paceRange": {
+      "minPacePerKm": "4:30",
+      "maxPacePerKm": "6:30"
+    },
+    "terrain": ["road"],
+    "durabilityKm": 550,
+    "priceTier": "mid",
+    "widthOptions": ["narrow", "standard", "wide"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "Hoka Clifton 10",
+    "brand": "Hoka",
+    "model": "Clifton 10",
+    "price": 145,
+    "weightOunces": 8.8,
+    "offsetMilimeters": 5,
+    "heelStackMm": 32,
+    "forefootStackMm": 27,
+    "url": "https://www.hoka.com/en/us/men-road/clifton-10/1123201.html",
+    
+    "shoeTypes": ["daily", "recovery", "long-run"],
+    "supportLevel": "neutral",
+    "cushioningScale": 9,
+    "weightClass": "light",
+    "paceRange": {
+      "minPacePerKm": "4:30",
+      "maxPacePerKm": "6:30"
+    },
+    "terrain": ["road"],
+    "durabilityKm": 450,
+    "priceTier": "mid",
+    "widthOptions": ["narrow", "standard", "wide"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "Nike Vaporfly 3",
+    "brand": "Nike",
+    "model": "Vaporfly 3",
+    "price": 260,
+    "weightOunces": 6.8,
+    "offsetMilimeters": 8,
+    "heelStackMm": 40,
+    "forefootStackMm": 32,
+    "url": "https://www.nike.com/t/air-zoom-alphafly-next-3-mens-road-racing-shoes/DN3555-600",
+    
+    "shoeTypes": ["race", "tempo"],
+    "supportLevel": "neutral",
+    "cushioningScale": 5,
+    "weightClass": "light",
+    "paceRange": {
+      "minPacePerKm": "3:00",
+      "maxPacePerKm": "4:00"
+    },
+    "terrain": ["road", "track"],
+    "durabilityKm": 250,
+    "priceTier": "premium",
+    "widthOptions": ["standard"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "Salomon Speedcross 6",
+    "brand": "Salomon",
+    "model": "Speedcross 6",
+    "price": 140,
+    "weightOunces": 10.6,
+    "offsetMilimeters": 11,
+    "heelStackMm": 28,
+    "forefootStackMm": 17,
+    "url": "https://www.salomon.com/en-us/shop/product/speedcross-6.html",
+    
+    "shoeTypes": ["trail"],
+    "supportLevel": "neutral",
+    "cushioningScale": 6,
+    "weightClass": "mid",
+    "paceRange": {
+      "minPacePerKm": "4:00",
+      "maxPacePerKm": "6:30"
+    },
+    "terrain": ["trail"],
+    "durabilityKm": 400,
+    "priceTier": "mid",
+    "widthOptions": ["standard", "wide"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "ASICS Gel-Nimbus 26",
+    "brand": "ASICS",
+    "model": "Gel-Nimbus 26",
+    "price": 160,
+    "weightOunces": 10.9,
+    "offsetMilimeters": 10,
+    "heelStackMm": 33,
+    "forefootStackMm": 23,
+    "url": "https://www.asics.com/us/en-us/gel-nimbus-26/p/ANA_1011B794-001.html",
+    
+    "shoeTypes": ["daily", "long-run", "recovery"],
+    "supportLevel": "neutral",
+    "cushioningScale": 9,
+    "weightClass": "mid",
+    "paceRange": {
+      "minPacePerKm": "4:30",
+      "maxPacePerKm": "6:30"
+    },
+    "terrain": ["road"],
+    "durabilityKm": 600,
+    "priceTier": "mid",
+    "widthOptions": ["narrow", "standard", "wide"],
+    "releaseYear": 2024
+  },
+  {
+    "name": "New Balance FuelCell Rebel v4",
+    "brand": "New Balance",
+    "model": "FuelCell Rebel v4",
+    "price": 140,
+    "weightOunces": 7.8,
+    "offsetMilimeters": 6,
+    "heelStackMm": 33,
+    "forefootStackMm": 27,
+    "url": "https://www.newbalance.com/pd/fuelcell-rebel-v4/MFCXLV4-50136.html",
+    
+    "shoeTypes": ["tempo", "daily"],
+    "supportLevel": "neutral",
+    "cushioningScale": 6,
+    "weightClass": "light",
+    "paceRange": {
+      "minPacePerKm": "3:30",
+      "maxPacePerKm": "5:00"
+    },
+    "terrain": ["road"],
+    "durabilityKm": 350,
+    "priceTier": "budget",
+    "widthOptions": ["narrow", "standard", "wide"],
+    "releaseYear": 2024
+  }
+]
